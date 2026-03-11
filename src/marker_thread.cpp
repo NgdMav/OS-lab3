@@ -1,4 +1,4 @@
-#include "../include/thread_functions.h"
+#include "../include/marker_thread.h"
 #include <iostream>
 #include <iomanip>
 
