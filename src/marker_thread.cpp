@@ -14,16 +14,22 @@ DWORD WINAPI MarkerThread(LPVOID lpParam) {
         std::cerr << "MarkerThread(" << data->markerID << "): Invalid array data\n";
         return 1;
     }
+
+    WaitForSingleObject(data->StartEvent, INFINITE);
+
+    std::cout << "[Marker " << data->markerID <<"]Started\n";
+
+    srand(data->markerID);
 }
 
-void PrintArray(const int* array, int size, const char* message) {
+void PrintArray(const int32_t* array, int32_t size, const char* message) {
     if (!array || size <= 0) {
         std::cerr << "PrintArray: Invalid parameters\n";
         return;
     }
 
     std::cout << "\n" << message << "\n[";
-    for (int i = 0; i < size; ++i) {
+    for (size_t i = 0; i < size; ++i) {
         std::cout << array[i];
         if (i < size - 1) {
             std::cout << ", ";
@@ -32,7 +38,7 @@ void PrintArray(const int* array, int size, const char* message) {
     std::cout << " ]\n";
 }
 
-bool CheckArraySize(int size) {
+bool CheckSize(int32_t size) {
     if (size <= 0) {
         std::cerr << "Error: array size must be a positive number\n";
         return false;
