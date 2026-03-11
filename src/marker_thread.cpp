@@ -2,6 +2,20 @@
 #include <iostream>
 #include <iomanip>
 
+DWORD WINAPI MarkerThread(LPVOID lpParam) {
+    if (!lpParam) {
+        std::cerr << "MarkerThread: Invalid parameter\n";
+        return 1;
+    }
+
+    MarkerData* data = static_cast<MarkerData*>(lpParam);
+
+    if (!data->array || data->arraySize <= 0) {
+        std::cerr << "MarkerThread(" << data->markerID << "): Invalid array data\n";
+        return 1;
+    }
+}
+
 void PrintArray(const int* array, int size, const char* message) {
     if (!array || size <= 0) {
         std::cerr << "PrintArray: Invalid parameters\n";
