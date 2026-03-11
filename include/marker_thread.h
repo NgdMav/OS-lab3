@@ -1,27 +1,18 @@
-#ifndef THREAD_FUNCTIONS_H
-#define THREAD_FUNCTIONS_H
+#ifndef MARKER_THREAD_H
+#define MARKER_THREAD_H
 
 #include <windows.h>
+#include <cstdint>
 
-struct MinMaxData {
-    int* array;
-    int size;
-    int minValue;
-    int maxValue;
-    int minIndex;
-    int maxIndex;
+struct MarkerData {
+    int32_t* array;
+    int32_t arraySize;
+    int32_t markerID;
 };
 
-struct AverageData {
-    int* array;
-    int size;
-    double averageValue;
-};
-
-DWORD WINAPI MinMaxThread(LPVOID lpParam);
-DWORD WINAPI AverageThread(LPVOID lpParam);
+DWORD WINAPI MarkerThread(LPVOID lpParam);
 
 void PrintArray(const int* array, int size, const char* message);
 bool CheckArraySize(int size);
 
-#endif // THREAD_FUNCTIONS_H
+#endif // MARKER_THREAD_H
