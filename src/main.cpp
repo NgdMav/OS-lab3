@@ -29,6 +29,9 @@ int main() {
             return 1;
         }
 
+        CRITICAL_SECTION cs;
+        InitializeCriticalSection(&cs);
+
     } catch (const std::bad_alloc& e) {
         std::cerr << "Memory allocation error: " << e.what();
         return 1;
