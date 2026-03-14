@@ -117,7 +117,7 @@ int main() {
             std::cout << "\n--- Waiting for all threads to block ---\n";
 
             std::vector<HANDLE> activeEvents;
-            for (size_t i = 0; i < markerCount; i++) {
+            for (size_t i = 0; i < markerCount; ++i) {
                 if (markerThreads[i] != NULL) {
                     activeEvents.push_back(markerData[i].cannotContinueEvent);
                 }
@@ -171,6 +171,20 @@ int main() {
             activeThreads--;
  
             std::cout << "Thread " << threadIndex << " is finished. Threads remaining: " << activeThreads << "\n";
+            
+            PrintArray(array.get(), size, "--- Array ---");
+
+            if (activeThreads > 0) {
+                std::cout << "\nSending signal to continue...\n";
+                for (size_t i = 0; i < markerCount; ++i) {
+                    if (markerThreads[i] != NULL) {
+                        ResetEvent(markerData[i].cannotContinueEvent);
+                        SetEvent(markerData[i].continueEvent);
+                        Sleep(100);
+                        ResetEvent(markerData[i].continueEvent);
+                    }
+                }
+            }
         }
         
 
