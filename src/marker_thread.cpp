@@ -70,6 +70,20 @@ DWORD WINAPI MarkerThread(LPVOID lpParam) {
             }
         }
     }
+
+    std::cout << "[Marker#" << data->markerID << "] Has finished it's work\n";
+    
+    EnterCriticalSection(data->cs);
+    for (size_t i = 0; i < data->arraySize; ++i) {
+        if (data->array[i] == data->markerID) {
+            data->array[i] = 0;
+        }
+    }
+    LeaveCriticalSection(data->cs);
+    
+    std::cout << "[Marker#" << data->markerID << "] Has cleard " << data->markedCount << " elements\n";
+ 
+    return 0;
 }
 
 void PrintArray(const int32_t* array, int32_t size, const char* message) {
