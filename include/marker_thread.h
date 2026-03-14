@@ -10,6 +10,10 @@ struct MarkerData {
     int32_t markerID;
 
     HANDLE startEvent;
+    HANDLE continueEvent;
+    HANDLE terminateEvent;
+
+    HANDLE cannotContinueEvent;
 
     CRITICAL_SECTION* cs;
 };

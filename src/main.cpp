@@ -39,16 +39,33 @@ int main() {
         for (size_t i = 0; i < markerCount; ++i)
         {
             HANDLE startEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-            if (!startEvent) {
-                std::cerr << "Error creating event " << i << "\n";
+            HANDLE continueEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+            HANDLE terminateEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+            HANDLE cannotContinueEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+            if (!startEvent || !continueEvent || !terminateEvent || !cannotContinueEvent) {
+                std::cerr << "Error creating events for " << i << "\n";
                 for (size_t j = 0; j < i; ++j)
                 {
                     CloseHandle(markerThreads[j]);
                     CloseHandle(markerData[j].startEvent);
+                    CloseHandle(markerData[j].continueEvent);
+                    CloseHandle(markerData[j].terminateEvent);
+                    CloseHandle(markerData[j].cannotContinueEvent);
+                }
+                if (startEvent) {
+                    CloseHandle(startEvent);
+                }
+                if (continueEvent) {
+                    CloseHandle(continueEvent);
+                }
+                if (terminateEvent) {
+                    CloseHandle(terminateEvent);
+                }
+                if (cannotContinueEvent) {
+                    CloseHandle(cannotContinueEvent);
                 }
                 DeleteCriticalSection(&cs);
                 return 1;
-                
             }
 
             markerData[i].array = array.get();
@@ -56,6 +73,9 @@ int main() {
             markerData[i].markerID = i;
 
             markerData[i].startEvent = startEvent;
+            markerData[i].continueEvent = continueEvent;
+            markerData[i].terminateEvent = terminateEvent;
+            markerData[i].cannotContinueEvent = cannotContinueEvent;
 
             markerData[i].cs = &cs;
 
@@ -65,7 +85,21 @@ int main() {
             if (markerThreads[i] == NULL) {
                 DWORD error = GetLastError();
                 std::cerr << "Error creating thread " << i << ". Code: " << error << "\n";
+                for (size_t j = 0; j < i; ++j)
+                {
+                    CloseHandle(markerThreads[j]);
+                    CloseHandle(markerData[j].startEvent);
+                    CloseHandle(markerData[j].continueEvent);
+                    CloseHandle(markerData[j].terminateEvent);
+                    CloseHandle(markerData[j].cannotContinueEvent);
+                }
+                CloseHandle(startEvent);
+                CloseHandle(continueEvent);
+                CloseHandle(terminateEvent);
+                CloseHandle(cannotContinueEvent);
+
                 DeleteCriticalSection(&cs);
+
                 return 1;
             }
  
@@ -79,6 +113,32 @@ int main() {
         }
         Sleep(100);
         
+        int32_t activeTreads = markerCount;
+
+        while (activeTreads > 0)
+        {
+            std::cout << "\n--- Waiting for all threads to block ---\n";
+
+            std::vector<HANDLE> activeEvents;
+            for (int i = 0; i < markerCount; i++) {
+                if (markerThreads[i] != NULL) {
+                    activeEvents.push_back(markerData[i].cannotContinueEvent);
+                }
+            }
+
+            if (activeEvents.empty()) {
+                break;
+            }
+
+            WaitForMultipleObjects(
+                static_cast<DWORD>(activeEvents.size()),
+                activeEvents.data(), 
+                TRUE,
+                INFINITE
+            );
+
+            std::cout << "All active threads are blocked\n";
+        }
         
 
     } catch (const std::bad_alloc& e) {
