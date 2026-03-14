@@ -9,9 +9,9 @@ struct MarkerData {
     int32_t arraySize;
     int32_t markerID;
 
-    HANDLE StartEvent;
+    HANDLE startEvent;
 
-    CRITICAL_SECTION cs;
+    CRITICAL_SECTION* cs;
 };
 
 DWORD WINAPI MarkerThread(LPVOID lpParam);

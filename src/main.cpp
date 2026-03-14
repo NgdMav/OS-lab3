@@ -1,7 +1,6 @@
 #include "../include/marker_thread.h"
 #include <iostream>
-#include <limits>
-#include <memory>
+#include <vector>
 
 int main() {
     try {
@@ -31,6 +30,48 @@ int main() {
 
         CRITICAL_SECTION cs;
         InitializeCriticalSection(&cs);
+
+        std::vector<HANDLE> markerThreads(markerCount);
+        std::vector<MarkerData> markerData(markerCount);
+
+        std::cout << "\nPreparing all markers\n";
+
+        for (size_t i = 0; i < markerCount; ++i)
+        {
+            HANDLE startEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+            if (!startEvent) {
+                std::cerr << "Error creating event " << i << "\n";
+                for (size_t j = 0; j < i; ++j)
+                {
+                    CloseHandle(markerThreads[j]);
+                    CloseHandle(markerData[j].startEvent);
+                }
+                DeleteCriticalSection(&cs);
+                return 1;
+                
+            }
+
+            markerData[i].array = array.get();
+            markerData[i].arraySize = size;
+            markerData[i].markerID = i;
+
+            markerData[i].startEvent = startEvent;
+
+            markerData[i].cs = &cs;
+
+            DWORD threadId;
+            markerThreads[i] = CreateThread(NULL, 0, MarkerThread, &markerData[i], 0, &threadId);
+ 
+            if (markerThreads[i] == NULL) {
+                DWORD error = GetLastError();
+                std::cerr << "Error creating thread " << i << ". Code: " << error << "\n";
+                DeleteCriticalSection(&cs);
+                return 1;
+            }
+ 
+            std::cout << "Thread marker " << i << " was created (ID: " << threadId << ")\n";
+        }
+        
 
     } catch (const std::bad_alloc& e) {
         std::cerr << "Memory allocation error: " << e.what();
