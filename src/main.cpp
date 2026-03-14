@@ -36,8 +36,7 @@ int main() {
 
         std::cout << "\nPreparing all markers...\n";
 
-        for (size_t i = 0; i < markerCount; ++i)
-        {
+        for (size_t i = 0; i < markerCount; ++i) {
             HANDLE startEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
             HANDLE continueEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
             HANDLE terminateEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -107,20 +106,18 @@ int main() {
         }
 
         std::cout << "\nStarting all markers...\n";
-        for (size_t i = 0; i < markerCount; ++i)
-        {
+        for (size_t i = 0; i < markerCount; ++i) {
             SetEvent(markerData[i].startEvent);
         }
         Sleep(100);
         
-        int32_t activeTreads = markerCount;
+        int32_t activeThreads = markerCount;
 
-        while (activeTreads > 0)
-        {
+        while (activeThreads > 0) {
             std::cout << "\n--- Waiting for all threads to block ---\n";
 
             std::vector<HANDLE> activeEvents;
-            for (int i = 0; i < markerCount; i++) {
+            for (size_t i = 0; i < markerCount; i++) {
                 if (markerThreads[i] != NULL) {
                     activeEvents.push_back(markerData[i].cannotContinueEvent);
                 }
@@ -138,6 +135,42 @@ int main() {
             );
 
             std::cout << "All active threads are blocked\n";
+
+            PrintArray(array.get(), size, "--- Array ---");
+
+            int32_t threadIndex = 0;
+            std::cout << "\nEnter number of thread to finish (0-" << markerCount - 1 << "): ";
+            std::cin >> threadIndex;
+            if (!CheckSize(threadIndex) || threadIndex >= markerCount) {
+                std::cerr << "Wrong number\n";
+                continue;
+            }
+
+            if (markerThreads[threadIndex] == NULL) {
+                std::cout << "Thread " << threadIndex << " is finished already.\n";
+                continue;
+            }
+
+            std::cout << "\nSending signal to finish thread " << threadIndex << "\n";
+            SetEvent(markerData[threadIndex].terminateEvent);
+
+            WaitForSingleObject(markerThreads[threadIndex], INFINITE);
+            
+            CloseHandle(markerThreads[threadIndex]);
+            CloseHandle(markerData[threadIndex].startEvent);
+            CloseHandle(markerData[threadIndex].continueEvent);
+            CloseHandle(markerData[threadIndex].terminateEvent);
+            CloseHandle(markerData[threadIndex].cannotContinueEvent);
+            
+            markerThreads[threadIndex] = NULL;
+            markerData[threadIndex].startEvent = NULL;
+            markerData[threadIndex].cannotContinueEvent = NULL;
+            markerData[threadIndex].continueEvent = NULL;
+            markerData[threadIndex].terminateEvent = NULL;
+            
+            activeThreads--;
+ 
+            std::cout << "Thread " << threadIndex << " is finished. Threads remaining: " << activeThreads << "\n";
         }
         
 
