@@ -16,6 +16,9 @@ struct MarkerData {
     HANDLE cannotContinueEvent;
 
     CRITICAL_SECTION* cs;
+
+    int32_t markedCount;
+    int32_t blockedIndex;
 };
 
 DWORD WINAPI MarkerThread(LPVOID lpParam);

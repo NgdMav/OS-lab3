@@ -17,9 +17,59 @@ DWORD WINAPI MarkerThread(LPVOID lpParam) {
 
     WaitForSingleObject(data->startEvent, INFINITE);
 
-    std::cout << "[Marker " << data->markerID <<"]Started\n";
+    std::cout << "[Marker#" << data->markerID <<"]Started\n";
 
     srand(data->markerID);
+
+    data->markedCount = 0;
+    data->blockedIndex = -1;
+
+    while (true) {
+        int32_t randomValue = rand();
+        int32_t index = randomValue % data->arraySize;
+ 
+        EnterCriticalSection(data->cs);
+        if (data->array[index] == 0) {
+            LeaveCriticalSection(data->cs);
+
+            Sleep(5);
+
+            EnterCriticalSection(data->cs);
+            data->array[index] = data->markerID;
+            data->markedCount++;
+            LeaveCriticalSection(data->cs);
+
+            Sleep(5);
+            
+            continue;
+        } 
+        else {
+            data->blockedIndex = index;
+            LeaveCriticalSection(data->cs);
+            std::cout << "\n[Marker#" << data->markerID << "] Cannot continue:\n";
+            std::cout << "  Marked elements: " << data->markedCount << "\n";
+            std::cout << "  Blocked on: " << data->blockedIndex << " index (marked by " << data->array[index] << ")\n";
+            
+            SetEvent(data->cannotContinueEvent);
+            
+            HANDLE events[] = {data->continueEvent, data->terminateEvent};
+            DWORD waitResult = WaitForMultipleObjects(2, events, FALSE, INFINITE);
+            
+            if (waitResult == WAIT_OBJECT_0) {
+                std::cout << "[Marker#" << data->markerID << "] Continue to work\n";
+                ResetEvent(data->cannotContinueEvent);
+                ResetEvent(data->continueEvent);
+                continue;
+            }
+            else if (waitResult == WAIT_OBJECT_0 + 1) {
+                break;
+            }
+            else {
+                std::cerr << "[Marker#" << data->markerID << "] Error waiting events\n";
+                return 1;
+            }
+        }
+    }
 }
 
 void PrintArray(const int32_t* array, int32_t size, const char* message) {

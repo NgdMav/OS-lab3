@@ -69,7 +69,7 @@ int main() {
 
             markerData[i].array = array.get();
             markerData[i].arraySize = size;
-            markerData[i].markerID = i;
+            markerData[i].markerID = i + 1;
 
             markerData[i].startEvent = startEvent;
             markerData[i].continueEvent = continueEvent;
@@ -139,15 +139,16 @@ int main() {
             PrintArray(array.get(), size, "--- Array ---");
 
             int32_t threadIndex = 0;
-            std::cout << "\nEnter number of thread to finish (0-" << markerCount - 1 << "): ";
+            std::cout << "\nEnter number of thread to finish (1-" << markerCount << "): ";
             std::cin >> threadIndex;
+            --threadIndex;
             if (!CheckSize(threadIndex) || threadIndex >= markerCount) {
                 std::cerr << "Wrong number\n";
                 continue;
             }
 
             if (markerThreads[threadIndex] == NULL) {
-                std::cout << "Thread " << threadIndex << " is finished already.\n";
+                std::cout << "Thread " << threadIndex + 1 << " is finished already.\n";
                 continue;
             }
 
@@ -170,7 +171,7 @@ int main() {
             
             activeThreads--;
  
-            std::cout << "Thread " << threadIndex << " is finished. Threads remaining: " << activeThreads << "\n";
+            std::cout << "Thread " << threadIndex + 1 << " is finished. Threads remaining: " << activeThreads << "\n";
             
             PrintArray(array.get(), size, "--- Array ---");
 
@@ -178,10 +179,7 @@ int main() {
                 std::cout << "\nSending signal to continue...\n";
                 for (size_t i = 0; i < markerCount; ++i) {
                     if (markerThreads[i] != NULL) {
-                        ResetEvent(markerData[i].cannotContinueEvent);
                         SetEvent(markerData[i].continueEvent);
-                        Sleep(100);
-                        ResetEvent(markerData[i].continueEvent);
                     }
                 }
             }
