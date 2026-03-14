@@ -15,7 +15,7 @@ DWORD WINAPI MarkerThread(LPVOID lpParam) {
         return 1;
     }
 
-    WaitForSingleObject(data->StartEvent, INFINITE);
+    WaitForSingleObject(data->startEvent, INFINITE);
 
     std::cout << "[Marker " << data->markerID <<"]Started\n";
 

@@ -34,7 +34,7 @@ int main() {
         std::vector<HANDLE> markerThreads(markerCount);
         std::vector<MarkerData> markerData(markerCount);
 
-        std::cout << "\nPreparing all markers\n";
+        std::cout << "\nPreparing all markers...\n";
 
         for (size_t i = 0; i < markerCount; ++i)
         {
@@ -71,6 +71,14 @@ int main() {
  
             std::cout << "Thread marker " << i << " was created (ID: " << threadId << ")\n";
         }
+
+        std::cout << "\nStarting all markers...\n";
+        for (size_t i = 0; i < markerCount; ++i)
+        {
+            SetEvent(markerData[i].startEvent);
+        }
+        Sleep(100);
+        
         
 
     } catch (const std::bad_alloc& e) {
