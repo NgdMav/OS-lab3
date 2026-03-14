@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(Lab2_Threads LANGUAGES CXX)
+project(Lab3_Synchronization LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -17,31 +17,31 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 # Основной исполняемый файл
-add_library(thread_lib STATIC
-    src/thread_functions.cpp
-    include/thread_functions.h
+add_library(marker_lib STATIC
+    src/marker_thread.cpp
+    include/marker_thread.h
 )
 
-add_executable(lab2_threads
+add_executable(lab3_synchronization
     src/main.cpp
 )
 
-target_link_libraries(lab2_threads PRIVATE 
-    thread_lib
+target_link_libraries(lab3_synchronization PRIVATE 
+    marker_lib
 )
 
 # Включение тестирования
 enable_testing()
 
 add_executable(tests
-    tests/test_threads.cpp
+    tests/test.cpp
 )
 target_include_directories(tests PRIVATE
     ${PROJECT_SOURCE_DIR}/include
 )
 
 target_link_libraries(tests PRIVATE
-    thread_lib
+    marker_lib
     gtest
     gtest_main
 )

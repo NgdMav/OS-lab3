@@ -102,7 +102,7 @@ int main() {
                 return 1;
             }
  
-            std::cout << "Thread marker " << i << " was created (ID: " << threadId << ")\n";
+            std::cout << "Thread marker " << i + 1 << " was created (ID: " << threadId << ")\n";
         }
 
         std::cout << "\nStarting all markers...\n";
@@ -141,18 +141,18 @@ int main() {
             int32_t threadIndex = 0;
             std::cout << "\nEnter number of thread to finish (1-" << markerCount << "): ";
             std::cin >> threadIndex;
-            --threadIndex;
-            if (!CheckSize(threadIndex) || threadIndex >= markerCount) {
+            if (!CheckSize(threadIndex) || threadIndex > markerCount) {
                 std::cerr << "Wrong number\n";
                 continue;
             }
+            --threadIndex;
 
             if (markerThreads[threadIndex] == NULL) {
                 std::cout << "Thread " << threadIndex + 1 << " is finished already.\n";
                 continue;
             }
 
-            std::cout << "\nSending signal to finish thread " << threadIndex << "\n";
+            std::cout << "\nSending signal to finish thread " << threadIndex + 1 << "\n";
             SetEvent(markerData[threadIndex].terminateEvent);
 
             WaitForSingleObject(markerThreads[threadIndex], INFINITE);

@@ -104,12 +104,12 @@ void PrintArray(const int32_t* array, int32_t size, const char* message) {
 
 bool CheckSize(int32_t size) {
     if (size <= 0) {
-        std::cerr << "Error: array size must be a positive number\n";
+        std::cerr << "Error: size must be a positive number\n";
         return false;
     }
     
     if (size > 10000) {
-        std::cerr << "Warning: Array too large (max 10000)\n";
+        std::cerr << "Warning: Too large (max 10000)\n";
         return false;
     }
     
