@@ -186,6 +186,31 @@ int main() {
                 }
             }
         }
+
+        std::cout << "\n--- All threads are finished ---\n";
+        PrintArray(array.get(), size, "--- Final Array ---");
+ 
+        for (size_t i = 0; i < markerCount; ++i) {
+            if (markerThreads[i]) {
+                CloseHandle(markerThreads[i]);
+            }
+            if (markerData[i].startEvent) {
+                CloseHandle(markerData[i].startEvent);
+            }
+            if (markerData[i].continueEvent) {
+                CloseHandle(markerData[i].continueEvent);
+            }
+            if (markerData[i].terminateEvent) {
+                CloseHandle(markerData[i].terminateEvent);
+            }
+            if (markerData[i].cannotContinueEvent) {
+                CloseHandle(markerData[i].cannotContinueEvent);
+            }
+        }
+ 
+        DeleteCriticalSection(&cs);
+        system("pause");
+        return 0;
         
 
     } catch (const std::bad_alloc& e) {
