@@ -30,11 +30,11 @@ DWORD WINAPI MarkerThread(LPVOID lpParam) {
  
         EnterCriticalSection(data->cs);
         if (data->array[index] == 0) {
-            LeaveCriticalSection(data->cs);
+            // LeaveCriticalSection(data->cs);
 
             Sleep(5);
 
-            EnterCriticalSection(data->cs);
+            // EnterCriticalSection(data->cs);
             data->array[index] = data->markerID;
             data->markedCount++;
             LeaveCriticalSection(data->cs);
